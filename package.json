@@ -5,14 +5,15 @@
     "dependencies": {
         "@js-joda/locale_en-us": "2.0.1",
         "big.js": "5.2.2",
+        "highlight.js": "^9.12.0",
         "js-joda": "1.11.0",
         "js-joda-timezone": "2.1.1",
-        "highlight.js": "^9.12.0",
         "react-grid-layout": "^0.16.6",
+        "semantic-ui-react": "^1.2.1",
         "workbox-background-sync": "^5.1.4",
         "workbox-core": "^5.1.4",
+        "workbox-expiration": "^5.1.4",
         "workbox-routing": "^5.1.4",
-        "semantic-ui-react": "^1.2.1",
         "workbox-strategies": "^5.1.4"
     },
     "devDependencies": {

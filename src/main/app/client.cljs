@@ -7,6 +7,7 @@
     [com.fulcrologic.fulcro.routing.dynamic-routing :as dr]
     [com.fulcrologic.rad.application :as rad-app]
     [com.fulcrologic.rad.rendering.semantic-ui.semantic-ui-controls :as sui]
+    [com.fulcrologic.fulcro-pwa.serviceworker :as sworker]
     [com.fulcrologic.rad.routing.history :as history]
     [com.fulcrologic.rad.routing.html5-history :refer [html5-history]]
     [com.fulcrologic.rad.type-support.date-time :as datetime]

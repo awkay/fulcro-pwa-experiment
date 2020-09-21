@@ -1,16 +1,20 @@
 {:deps   {:aliases [:dev]}
  :nrepl  {:port 9000}
- :builds {:main {:target     :browser
-                 :output-dir "resources/public/js/main"
-                 :asset-path "/js/main"
+ :builds {:main   {:target            :browser
+                   :output-dir        "resources/public/js/main"
+                   :asset-path        "/js/main"
+                   :modules           {:main {:init-fn app.client/init}}
+                   :module-hash-names true
 
-                 :modules    {:main {:init-fn app.client/init}}
-                 :module-hash-names true
+                   ;; guardrails checks only during dev
 
-                 ;; guardrails checks only during dev
+                   :dev               {:compiler-options
+                                       {:external-config {:guardrails {}}}}
 
-                 :dev        {:compiler-options
-                              {:external-config {:guardrails {}}}}
-
-                 :devtools   {:after-load app.client/refresh
-                              :preloads   [com.fulcrologic.fulcro.inspect.preload app.development-preload]}}}}
+                   :devtools          {:after-load app.client/refresh
+                                       :preloads   [com.fulcrologic.fulcro.inspect.preload app.development-preload]}}
+          :worker {:target     :browser
+                   :output-dir "resources/public/"
+                   :asset-path "/"
+                   :modules    {:worker {:entries    [app.worker]
+                                         :web-worker true}}}}}

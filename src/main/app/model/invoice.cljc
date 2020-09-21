@@ -35,7 +35,6 @@
                    #?(:clj
                       {:invoice/all-invoices (queries/get-all-invoices env query-params)}))})
 
-
 (def attributes [id date line-items all-invoices total])
 #?(:clj
    (def resolvers []))

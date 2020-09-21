@@ -1,7 +1,10 @@
 (ns app.ui.invoice-forms
   (:require
+    [clojure.pprint :refer [pprint]]
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.algorithms.tempid :as tempid]
+    [com.fulcrologic.fulcro.dom :as dom]
+    [com.fulcrologic.rad.control :as control]
     [com.fulcrologic.rad.type-support.decimal :as math]
     [app.model.model :as model]
     [app.model.invoice :as invoice]
@@ -39,7 +42,6 @@
    fo/layout         [[:invoice/date]
                       [:invoice/line-items]
                       [:invoice/total]]
-
    fo/subforms       {:invoice/line-items {fo/ui          LineItemForm
                                            fo/can-delete? (fn [_ _] true)
                                            fo/can-add?    (fn [_ _] true)}}
@@ -51,24 +53,18 @@
                          (str "Invoice " id)))})
 
 (report/defsc-report InvoiceList [this props]
-  {ro/title               "All Invoices"
-   ro/source-attribute    :invoice/all-invoices
-   ro/row-pk              invoice/id
-   ro/columns             [invoice/id invoice/date invoice/total]
+  {ro/title            "All Invoices"
+   ro/source-attribute :invoice/all-invoices
+   ro/row-pk           invoice/id
+   ro/columns          [invoice/id invoice/date invoice/total]
+   ro/column-headings  {:invoice/id "Invoice Number"}
+   ro/controls         {::new-invoice {:label  "New Invoice"
+                                       :type   :button
+                                       :action (fn [this] (form/create! this InvoiceForm))}}
+   ro/control-layout   {:action-buttons [::new-invoice]}
+   ro/row-actions      [{:label  "Delete"
+                         :action (fn [this {:invoice/keys [id] :as row}] (form/delete! this :invoice/id id))}]
+   ro/form-links       {:invoice/total InvoiceForm}
+   ro/run-on-mount?    true
+   ro/route            "invoices"})
 
-   ro/row-query-inclusion [:account/id]
-
-   ro/column-headings     {:invoice/id "Invoice Number"}
-
-   ro/controls            {::new-invoice {:label  "New Invoice"
-                                          :type   :button
-                                          :action (fn [this] (form/create! this InvoiceForm))}}
-
-   ro/control-layout      {:action-buttons [::new-invoice]}
-
-   ro/row-actions         [{:label  "Delete"
-                            :action (fn [this {:invoice/keys [id] :as row}] (form/delete! this :invoice/id id))}]
-
-   ro/form-links          {:invoice/total InvoiceForm}
-   ro/run-on-mount?       true
-   ro/route               "invoices"})

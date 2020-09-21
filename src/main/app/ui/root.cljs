@@ -41,8 +41,7 @@
         (dom/a :.item {:classes [(when (= :main current-tab) "active")]
                        :onClick (fn [] (rroute/route-to! this Main {}))} "Main")
         (dom/a :.item {:onClick (fn [] (rroute/route-to! this InvoiceList {}))} "View Invoices")
-        (dom/a :.item {:onClick (fn [] (form/create! this InvoiceForm))} "New Invoice")
-        )
+        (dom/a :.item {:onClick (fn [] (form/create! this InvoiceForm))} "New Invoice"))
       (div :.ui.grid
         (div :.ui.row
           (ui-top-router router))))))
