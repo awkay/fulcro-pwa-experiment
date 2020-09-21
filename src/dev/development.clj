@@ -1,4 +1,4 @@
-(ns user
+(ns development
   (:require
     [clojure.tools.namespace.repl :as tools-ns :refer [set-refresh-dirs]]
     [expound.alpha :as expound]
@@ -30,5 +30,5 @@
   to recompile, and then use `start` once things are good."
   []
   (stop)
-  (tools-ns/refresh :after 'user/start))
+  (tools-ns/refresh :after 'development/start))
 
