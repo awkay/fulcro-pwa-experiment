@@ -9,11 +9,18 @@
     (js/caches.match (.-request evt))
     (fn [response]
       (if response
-        response
-        (handler evt)))))
+        (do
+          (log/info "Found cached value for " (.. evt -request -url))
+          response)
+        (do
+          (log/info "No cached version of " (.. evt -request -url))
+          (handler evt))))))
 
 (defn fetch! [^js evt]
-  (log/debug "Doing real network fetch " (.-request evt))
+  (log/info "Doing real network fetch "
+    (.. evt -request -url)
+    (.. evt -request -method)
+    (.. evt -request -credentials))
   (js/fetch (.-request evt)))
 
 (defn wrap-serve-files-from-cache [handler]
