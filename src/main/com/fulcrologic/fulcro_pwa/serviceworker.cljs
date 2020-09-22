@@ -4,11 +4,19 @@
     [cljs.core.async.interop]
     [taoensso.timbre :as log]))
 
-(goog-define service-worker-version 1)
+(goog-define service-worker-version 6)
 (goog-define CACHE_NAME "fulcro-pwa-cache")
-(defn cache-name [] (str CACHE_NAME "=" service-worker-version))
+(defn cache-name [] (str CACHE_NAME "-" service-worker-version))
 
 (defn v [] (str "(worker version " service-worker-version ")"))
+
+(defn install! [js-file]
+  (.addEventListener js/window "load"
+    (fn []
+      (.then
+        (js/navigator.serviceWorker.register js-file)
+        (fn [reg] (js/console.log reg))
+        (fn [err] (js/console.error err))))))
 
 (defn setup!
   "Set up the service worker and pre-cache the given urls. If `middleware` is defined then it will be used

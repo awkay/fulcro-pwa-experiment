@@ -21,6 +21,7 @@
 
 (defn ^:export init []
   (log/info "Application starting.")
+  (sworker/install! "/worker.js")
   (datetime/set-timezone! "America/Los_Angeles")
   (history/install-route-history! SPA (html5-history))
   (app/set-root! SPA root/Root {:initialize-state? true})

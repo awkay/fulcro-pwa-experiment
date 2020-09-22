@@ -19,7 +19,7 @@
 (defn- manifest-modules
   "Returns a map from module keyword name to filename."
   []
-  (let [modules (some-> (io/resource "public/js/main/manifest.edn")
+  (let [modules (some-> (io/resource "app-public-resources/js/main/manifest.edn")
                   (slurp)
                   (edn/read-string))
         module-map
@@ -66,9 +66,6 @@
       [:link {:href "https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.7/semantic.min.css"
               :rel  "stylesheet"}]
       [:link {:rel "shortcut icon" :href "data:image/x-icon;," :type "image/x-icon"}]
-      [:script (installation-script "/worker.js")]
-      ;; TASK: CSRF will need to be changed to use secure http-only cookie, followed by a CSRF endpoint that requires the
-      ;; secured http-only cookie.
       [:script (str "var fulcro_network_csrf_token = '" csrf-token "';")]]
      [:body
       [:div#app]

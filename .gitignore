@@ -24,9 +24,6 @@ datahub.log*
 docs/.asciidoctor/
 docs/basic-db.png
 docs/mutations.png
-examples/calendar/resources/public/js/specs
-examples/calendar/src/quiescent_model
-examples/todo/src/quiescent_model
 figwheel_server.log
 lib
 node_modules
@@ -35,9 +32,7 @@ pom.xml
 pom.xml*
 pom.xml.asc
 resources/private/js
-resources/public/js
-resources/public/js/cards
-resources/public/js/test
+resources/app-public-resources/js
 target
 resources/public/getting-started.html
 resources/public/.asciidoctor/

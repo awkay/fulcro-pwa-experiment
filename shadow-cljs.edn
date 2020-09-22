@@ -12,9 +12,11 @@
                                        {:external-config {:guardrails {}}}}
 
                    :devtools          {:after-load app.client/refresh
-                                       :preloads   [com.fulcrologic.fulcro.inspect.preload app.development-preload]}}
+                                       :preloads   [com.fulcrologic.fulcro.inspect.preload
+                                                    com.fulcrologic.fulcro.inspect.element-picker
+                                                    app.development-preload]}}
           :worker {:target     :browser
-                   :output-dir "resources/public/"
+                   :output-dir "resources/app-public-resources/"
                    :asset-path "/"
                    :modules    {:worker {:entries    [app.worker]
                                          :web-worker true}}}}}
