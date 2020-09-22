@@ -6,6 +6,7 @@
     [com.fulcrologic.fulcro.server.api-middleware :refer [handle-api-request
                                                           wrap-transit-params
                                                           wrap-transit-response]]
+    [com.fulcrologic.fulcro-pwa.serviceworker :refer [installation-script]]
     [ring.middleware.defaults :refer [wrap-defaults]]
     [ring.util.response :refer [response file-response resource-response]]
     [ring.util.response :as resp]
@@ -62,17 +63,12 @@
       [:title "Application"]
       [:meta {:charset "utf-8"}]
       [:meta {:name "viewport" :content "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"}]
-      [:link {:href "https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+      [:link {:href "https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.7/semantic.min.css"
               :rel  "stylesheet"}]
       [:link {:rel "shortcut icon" :href "data:image/x-icon;," :type "image/x-icon"}]
-      [:script
-       (str
-         "if('serviceWorker' in navigator) "
-         "{ "
-         "window.addEventListener('load', function() { navigator.serviceWorker.register('/worker.js')
-           .then(function(reg) { console.log(reg); }, function(err) {console.log(err);});
-          });"
-         "}")]
+      [:script (installation-script "/worker.js")]
+      ;; TASK: CSRF will need to be changed to use secure http-only cookie, followed by a CSRF endpoint that requires the
+      ;; secured http-only cookie.
       [:script (str "var fulcro_network_csrf_token = '" csrf-token "';")]]
      [:body
       [:div#app]

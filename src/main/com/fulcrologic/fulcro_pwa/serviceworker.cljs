@@ -1,41 +1,51 @@
 (ns com.fulcrologic.fulcro-pwa.serviceworker
   (:require
-    ["workbox-routing" :refer [registerRoute]]
-    ["workbox-expiration" :refer [ExpirationPlugin]]
-    ["workbox-strategies" :refer [CacheFirst StaleWhileRevalidate]]))
+    [cljs.core.async :as async :refer [go]]
+    [cljs.core.async.interop]
+    [taoensso.timbre :as log]))
 
-(defn supported? [] (boolean (js-in "serviceWorker" js/navigator)))
+(goog-define service-worker-version 1)
+(goog-define CACHE_NAME "fulcro-pwa-cache")
+(defn cache-name [] (str CACHE_NAME "=" service-worker-version))
 
-(defn install! [js-file]
+(defn v [] (str "(worker version " service-worker-version ")"))
+
+(defn supported?
+  "Returns true if service workers are supported on the current browser."
+  []
+  (boolean (js-in "serviceWorker" js/navigator)))
+
+(defn setup!
+  "Set up the service worker and pre-cache the given urls. If `middleware` is defined then it will be used
+   to process fetch events."
+  [{:keys [urls middleware]}]
   (when (supported?)
-    (js/console.log "Installing worker on load")
-    (.addEventListener js/window "load"
-      (fn [] (.. js/navigator
-               -serviceWorker
-               (register js-file)
-               (then
-                 (fn [reg] (js/console.log "registered" reg))
-                 (fn [err] (js/console.error "failed" err))))))))
+    (log/info "Service worker " (v))
+    (.addEventListener js/self "install"
+      (fn [^js evt]
+        (log/info (v) "Performing install steps for service worker.")
+        (.waitUntil evt
+          (.then
+            (fn [cache]
+              (log/info (v) "Cache opened. Adding " urls)
+              (.addAll cache (clj->js urls)))
+            (.open js/caches (cache-name))))))
 
-(defn cache-css! []
-  (when (supported?)
-    (js/console.log "Caching styles")
-    (registerRoute
-      (fn [^js event]
-        (js/console.log event)
-        (let [destination (.. event -request -destination)]
-          (= "style" destination)))
-      (StaleWhileRevalidate. #js {:cacheName "css-cache"}))))
+    (.addEventListener js/self "activate"
+      (fn [^js evt]
+        (log/info "Activating " (v))
+        (.waitUntil evt
+          (.then
+            (fn [^js cache-names]
+              (js/Promise.all
+                (.map cache-names (fn [nm]
+                                    (when (not= nm (cache-name))
+                                      (log/info "Cleaning up old cache " nm)
+                                      (js/caches.delete nm))))))
+            (js/cache.keys)))))
 
-(defn cache-images! []
-  (when (supported?)
-    (js/console.log "Caching images")
-    (registerRoute
-      (fn [^js event]
-        (let [destination (.. event -request -destination)]
-          (= "image" destination)))
-      (CacheFirst.
-        #js {:cacheName "css-cache"
-             :plugins   #js [(ExpirationPlugin.
-                               #js {:maxEntries    20
-                                    :maxAgeSeconds (* 7 86400)})]}))))
+    (when middleware
+      (.addEventListener js/self "fetch" (fn [evt] (middleware evt))))))
+
+
+
