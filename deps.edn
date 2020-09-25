@@ -3,7 +3,9 @@
  :deps    {org.clojure/clojure                    {:mvn/version "1.10.1"}
            com.taoensso/timbre                    {:mvn/version "4.10.0"}
            com.wsscode/pathom                     {:mvn/version "2.2.31"}
-           com.fulcrologic/fulcro                 {:mvn/version "3.4.0-SNAPSHOT"}
+           com.fulcrologic/fulcro                 {:git/url "https://github.com/fulcrologic/fulcro.git"
+                                                   :sha     "df51817c7c0819b4bfabae600656c978bd476022"
+                                                   :tag     "3.4.0"}
            com.fulcrologic/fulcro-rad             {:mvn/version "1.0.4"}
            com.fulcrologic/fulcro-rad-kvstore     {:mvn/version "1.0.0-RC1"}
            com.fulcrologic/fulcro-rad-semantic-ui {:mvn/version "1.0.0"}

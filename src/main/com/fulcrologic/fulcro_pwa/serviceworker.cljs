@@ -1,8 +1,18 @@
 (ns com.fulcrologic.fulcro-pwa.serviceworker
+  (:require-macros [com.fulcrologic.fulcro-pwa.serviceworker :refer [then-as all-promises then-if]])
   (:require
+    [com.fulcrologic.fulcro-pwa.caches :as caches]
     [cljs.core.async :as async :refer [go]]
-    [cljs.core.async.interop]
+    [cljs.core.async.interop :refer-macros [<p!]]
     [taoensso.timbre :as log]))
+
+(defn wait-until
+  "A wrapper for service worker event.waitUntil. Returns a core async channel on which the result will appear."
+  [^js evt promise]
+  (.waitUntil evt promise))
+
+(defn add-listener! [event f] (.addEventListener js/self (name event) f))
+(defn register! [js-file] (js/navigator.serviceWorker.register js-file))
 
 (goog-define service-worker-version 6)
 (goog-define CACHE_NAME "fulcro-pwa-cache")
@@ -13,10 +23,9 @@
 (defn install! [js-file]
   (.addEventListener js/window "load"
     (fn []
-      (.then
-        (js/navigator.serviceWorker.register js-file)
-        (fn [reg] (js/console.log reg))
-        (fn [err] (js/console.error err))))))
+      (then-if [result (register! js-file)]
+        (js/console.log "Registered" result)
+        (js/console.error "Failed to register" result)))))
 
 (defn setup!
   "Set up the service worker and pre-cache the given urls. If `middleware` is defined then it will be used
@@ -26,28 +35,30 @@
   (.addEventListener js/self "install"
     (fn [^js evt]
       (log/info (v) "Performing install steps for service worker.")
-      (.waitUntil evt
-        (.then
-          (.open js/caches (cache-name))
-          (fn [cache]
-            (log/info (v) "Cache opened. Adding " urls)
-            (.addAll cache (clj->js urls)))))))
+      (wait-until evt
+        (then-as [cache (caches/open-cache (cache-name))]
+          (log/info (v) "Cache opened. Adding " urls)
+          (caches/add-all! cache urls)))))
 
-  (.addEventListener js/self "activate"
+  (add-listener! :install
+    (fn [^js evt]
+      (wait-until evt
+        (as-> (caches/open-cache (cache-name)) <>
+          (then-as [cache <>]
+            (log/info (v) "Cache opened. Adding " urls)
+            (caches/add-all! cache urls))
+          (then-if [result <>]
+            (log/info "all done" result))))))
+
+  (add-listener! :activate
     (fn [^js evt]
       (log/info "Activating " (v))
-      (.waitUntil evt
-        (.then
-          (js/caches.keys)
-          (fn [^js cache-names]
-            (js/Promise.all
-              (.map cache-names (fn [nm]
-                                  (when (not= nm (cache-name))
-                                    (log/info "Cleaning up old cache " nm)
-                                    (js/caches.delete nm))))))))))
+      (wait-until evt
+        (then-as [cache-names (caches/cache-names)]
+          (all-promises [nm cache-names]
+            (when (not= nm (cache-name))
+              (log/info "Cleaning up old cache " nm)
+              (caches/delete! nm)))))))
 
   (when middleware
-    (.addEventListener js/self "fetch" (fn [evt] (middleware evt)))))
-
-
-
+    (add-listener! :fetch (fn [evt] (middleware evt)))))

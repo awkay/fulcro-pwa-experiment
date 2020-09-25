@@ -1,5 +1,7 @@
 {:deps   {:aliases [:dev]}
- :nrepl  {:port 9000}
+ :nrepl  {:port 9010}
+ :http   {:port 9633
+          :host "localhost"}
  :builds {:main   {:target            :browser
                    :output-dir        "resources/public/js/main"
                    :asset-path        "/js/main"
@@ -12,7 +14,7 @@
                                        {:external-config {:guardrails {}}}}
 
                    :devtools          {:after-load app.client/refresh
-                                       :preloads   [com.fulcrologic.fulcro.inspect.preload
+                                       :preloads   [com.fulcrologic.fulcro.inspect.websocket-preload
                                                     com.fulcrologic.fulcro.inspect.element-picker
                                                     app.development-preload]}}
           :worker {:target     :browser
