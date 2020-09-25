@@ -74,19 +74,4 @@
      (.map ~collection (fn [~varname]
                          ~@body))))
 
-(comment
-  (walk/macroexpand-all '(then-as [browser (.launch pupeteer)]
-                           (as-> (.newPage browser) <>
-                             (then-as [page <>]
-                               (then-if [result (.goto page "http://www.google.com")]
-                                 (.screenshot page #js {:path "screenshot.png"})
-                                 (js/console.error result)))
-                             (.then <> #(.close browser)))))
 
-  (walk/macroexpand-all '(as-> (open-cache (cache-name)) <>
-                           (then-as [cache <>]
-                             (log/info (v) "Cache opened. Adding " urls)
-                             (add-all! cache urls))
-                           (then-if [result <>]
-                             (log/info "all done" result)
-                             (log/info "failed!" result)))))

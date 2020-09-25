@@ -21,3 +21,10 @@
   []
   (js/caches.keys))
 
+(defn match
+  "js/Cache.match. Returns a promise that will resolve to that match.
+  If no cache is supplied, it looks through them all."
+  ([uri]
+   (match js/caches uri))
+  ([^js cache uri]
+   (.match cache uri)))

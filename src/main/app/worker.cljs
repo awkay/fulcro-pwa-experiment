@@ -1,21 +1,21 @@
 (ns app.worker
   (:require
-    [com.fulcrologic.fulcro-pwa.serviceworker :as sworker]
+    [com.fulcrologic.fulcro-pwa.serviceworker :as sworker
+     :refer-macros [then-as then-if]]
+    [com.fulcrologic.fulcro-pwa.caches :as caches]
     [taoensso.timbre :as log]
     [clojure.string :as str]))
 
 (defn serve-files-from-cache [^js evt handler]
   (if (= "GET" (.. evt -request -method))
-    (.then
-      (js/caches.match (.-request evt))
-      (fn [response]
-        (if response
-          (do
-            (log/info "Found cached value for " (.. evt -request -url))
-            response)
-          (do
-            (log/info "No cached version of " (.. evt -request -url))
-            (handler evt)))))
+    (then-as [response (caches/match (.-request evt))]
+      (if response
+        (do
+          (log/info "Found cached value for " (.. evt -request -url))
+          response)
+        (do
+          (log/info "No cached version of " (.. evt -request -url))
+          (handler evt))))
     (handler evt)))
 
 (defn fetch! [^js evt]
@@ -40,11 +40,11 @@
 (defn respond-with!
   "Respond with a cache entry that matches uri"
   [^js evt uri]
-  (.respondWith evt (.match js/caches uri)))
+  (.respondWith evt (caches/match uri)))
 
 (defn wrap-alternate
-  "Convert the request in event to serve a cached `uri` for any request that returns true for the given predicate
-   `(fn [url] boolean)`."
+  "Convert the request so that it serves the given `uri` for any request for which the predicate returns true. The
+  predicate should be `(fn [url] boolean)`."
   [handler predicate uri]
   (fn [^js evt]
     (let [url      (or (.. evt -request -url) "")

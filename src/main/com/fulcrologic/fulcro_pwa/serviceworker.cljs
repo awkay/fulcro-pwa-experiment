@@ -11,7 +11,9 @@
   [^js evt promise]
   (.waitUntil evt promise))
 
-(defn add-listener! [event f] (.addEventListener js/self (name event) f))
+(defn add-listener!
+  "Add a listener to the service worker. MUST be called from WITHIN the service worker code."
+  [event f] (.addEventListener js/self (name event) f))
 (defn register! [js-file] (js/navigator.serviceWorker.register js-file))
 
 (goog-define service-worker-version 6)
@@ -20,7 +22,9 @@
 
 (defn v [] (str "(worker version " service-worker-version ")"))
 
-(defn install! [js-file]
+(defn install!
+  "Set up the given js-file as the service worker for this page. Must be called from the main application."
+  [js-file]
   (.addEventListener js/window "load"
     (fn []
       (then-if [result (register! js-file)]
@@ -32,23 +36,13 @@
    to process fetch events."
   [{:keys [urls middleware]}]
   (log/info "Service worker " (v))
-  (.addEventListener js/self "install"
+  (add-listener! :install
     (fn [^js evt]
       (log/info (v) "Performing install steps for service worker.")
       (wait-until evt
         (then-as [cache (caches/open-cache (cache-name))]
           (log/info (v) "Cache opened. Adding " urls)
           (caches/add-all! cache urls)))))
-
-  (add-listener! :install
-    (fn [^js evt]
-      (wait-until evt
-        (as-> (caches/open-cache (cache-name)) <>
-          (then-as [cache <>]
-            (log/info (v) "Cache opened. Adding " urls)
-            (caches/add-all! cache urls))
-          (then-if [result <>]
-            (log/info "all done" result))))))
 
   (add-listener! :activate
     (fn [^js evt]
