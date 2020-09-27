@@ -3,7 +3,7 @@
  :http   {:port 9633
           :host "localhost"}
  :builds {:main   {:target            :browser
-                   :output-dir        "resources/public/js/main"
+                   :output-dir        "resources/app-public-resources/js/main"
                    :asset-path        "/js/main"
                    :modules           {:main {:init-fn app.client/init}}
                    :module-hash-names true

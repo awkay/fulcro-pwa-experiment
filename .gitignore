@@ -58,3 +58,4 @@ resources/public/workspaces/*
 cljs-runtime
 manifest.edn
 worker.js
+dist

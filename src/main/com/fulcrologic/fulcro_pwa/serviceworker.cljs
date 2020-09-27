@@ -42,12 +42,15 @@
       (wait-until evt
         (then-as [cache (caches/open-cache (cache-name))]
           (log/info (v) "Cache opened. Adding " urls)
-          (caches/add-all! cache urls)))))
+          (then-if [finished (caches/add-all! cache urls)]
+            (log/info "Cached")
+            (log/error "failed" finished))))))
+
 
   (add-listener! :activate
     (fn [^js evt]
       (log/info "Activating " (v))
-      (wait-until evt
+      #_(wait-until evt
         (then-as [cache-names (caches/cache-names)]
           (all-promises [nm cache-names]
             (when (not= nm (cache-name))
@@ -55,4 +58,4 @@
               (caches/delete! nm)))))))
 
   (when middleware
-    (add-listener! :fetch (fn [evt] (middleware evt)))))
+    (add-listener! :fetch (fn [evt] (some->> (middleware evt) (.respondWith evt))))))

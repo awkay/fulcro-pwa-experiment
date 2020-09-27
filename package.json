@@ -1,5 +1,6 @@
 {
     "name": "fulcro-pwa-demo",
+    "main": "resources/app-public-resources/js/main/main.E6189B3047156A807CC4DF3C59D5F937.js",
     "version": "1.0.0",
     "description": "An installable Fulcro PWA",
     "dependencies": {
@@ -9,7 +10,13 @@
         "js-joda": "1.11.0",
         "js-joda-timezone": "2.1.1",
         "react-grid-layout": "^0.16.6",
-        "semantic-ui-react": "^1.2.1"
+        "semantic-ui-react": "^1.2.1",
+        "webpack": "^4.44.2",
+        "webpack-cli": "^3.3.12",
+        "workbox-expiration": "^5.1.4",
+        "workbox-routing": "^5.1.4",
+        "workbox-strategies": "^5.1.4",
+        "workbox-webpack-plugin": "^5.1.4"
     },
     "devDependencies": {
         "react": "^16.13.1",

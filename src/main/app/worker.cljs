@@ -20,10 +20,7 @@
 
 (defn fetch! [^js evt]
   (log/info "Doing real network fetch ")
-  (js/console.log evt)
-  (if (.. evt -request -bodyUsed)
-    (log/info "Skipping fetch. Request body has already been used?")
-    (js/fetch (.-request evt))))
+  (js/fetch (.-request evt)))
 
 (defn wrap-ignore-posts [handler]
   (fn [^js evt]
@@ -37,11 +34,6 @@
       nil
       (handler evt))))
 
-(defn respond-with!
-  "Respond with a cache entry that matches uri"
-  [^js evt uri]
-  (.respondWith evt (caches/match uri)))
-
 (defn wrap-alternate
   "Convert the request so that it serves the given `uri` for any request for which the predicate returns true. The
   predicate should be `(fn [url] boolean)`."
@@ -52,7 +44,8 @@
       (if matches?
         (do
           (log/info "Serving " url " as " uri)
-          (respond-with! evt uri))
+          (set! (.-url (.-request evt)) uri)
+          (handler evt))
         (handler evt)))))
 
 (defn wrap-serve-files-from-cache [handler]
@@ -70,7 +63,10 @@
 
 (sworker/setup! {:urls       ["/index.html"
                               "https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.7/semantic.min.css"
-                              "/js/main/main.D18E0208E05ED436A4B7B7FFF6EDB5EA.js"
+                              "/js/main/main.E6189B3047156A807CC4DF3C59D5F937.js"
+                              "https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin&display=swap"
+                              "https://fonts.gstatic.com/s/lato/v17/S6u9w4BMUTPHh6UVSwiPGQ3q5d0.woff2"
+                              "https://fonts.gstatic.com/s/lato/v17/S6uyw4BMUTPHjx4wXiWtFCc.woff2"
                               "/favicon.ico"]
                  :middleware (-> fetch!
                                (wrap-serve-files-from-cache)

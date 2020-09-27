@@ -6,7 +6,6 @@
     [com.fulcrologic.fulcro.server.api-middleware :refer [handle-api-request
                                                           wrap-transit-params
                                                           wrap-transit-response]]
-    [com.fulcrologic.fulcro-pwa.serviceworker :refer [installation-script]]
     [ring.middleware.defaults :refer [wrap-defaults]]
     [ring.util.response :refer [response file-response resource-response]]
     [ring.util.response :as resp]
